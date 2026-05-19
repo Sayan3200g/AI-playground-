@@ -1,0 +1,36 @@
+/* global.css — shared design tokens */
+:root {
+  color-scheme: dark;
+  --bg: #090a12;
+  --surface: #111320;
+  --surface-2: #171a2a;
+  --surface-3: #20243a;
+  --text: #e3e1ed;
+  --muted: #928ea0;
+  --soft: #c9c4d7;
+  --accent: #7c6af7;
+  --accent-2: #00d4c8;
+  --danger: #ff6f91;
+  --warning: #ffb86d;
+  --line: rgba(255,255,255,0.08);
+  --glass: rgba(255,255,255,0.03);
+  --glass-border: rgba(255,255,255,0.08);
+  --shadow: 0 24px 80px rgba(0,0,0,0.42);
+  --radius: 12px;
+  --radius-lg: 20px;
+}
+*,*::before,*::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  min-height: 100vh;
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Inter', system-ui, sans-serif;
+  font-size: 16px;
+  line-height: 1.6;
+  overflow-x: hidden;
+}
+button,input,select,textarea { font: inherit; }
+button { cursor: pointer; }
+a { color: inherit; }
+img { max-width: 100%; }

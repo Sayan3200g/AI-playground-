@@ -1,0 +1,406 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>AIPlayground — Pricing</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="global.css"/>
+  <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+  <style>
+    *,*::before,*::after{box-sizing:border-box;}
+    body{min-height:100vh;background:#090a12;color:#e3e1ed;font-family:'Inter',sans-serif;overflow-x:hidden;}
+
+    /* Orbs */
+    .orb{position:fixed;border-radius:50%;filter:blur(80px);pointer-events:none;z-index:0;animation:floatOrb 12s ease-in-out infinite;}
+    .orb-1{width:min(600px,100vw);height:min(600px,100vw);background:radial-gradient(circle,rgba(124,106,247,.2) 0%,transparent 70%);top:-10%;left:-10%;}
+    .orb-2{width:min(500px,90vw);height:min(500px,90vw);background:radial-gradient(circle,rgba(0,212,200,.15) 0%,transparent 70%);bottom:0;right:-5%;animation-delay:-6s;}
+    @keyframes floatOrb{0%,100%{transform:translateY(0)}50%{transform:translateY(-28px)}}
+
+    /* Navbar */
+    .navbar{position:fixed;top:0;left:0;right:0;z-index:100;height:62px;display:flex;align-items:center;justify-content:space-between;padding:0 32px;background:rgba(9,10,18,.8);backdrop-filter:blur(18px);border-bottom:1px solid rgba(255,255,255,.07);}
+    .nav-brand{display:flex;align-items:center;gap:10px;text-decoration:none;font-family:'Sora',sans-serif;font-weight:700;font-size:1rem;color:#e3e1ed;}
+    .nav-brand img{width:32px;border-radius:7px;}
+    .nav-links{display:flex;gap:24px;}
+    .nav-links a{font-size:.88rem;color:rgba(255,255,255,.6);text-decoration:none;transition:color .2s;}
+    .nav-links a:hover{color:#fff;}
+    .nav-btn{padding:8px 18px;border-radius:9px;font-weight:600;font-size:.88rem;background:linear-gradient(135deg,#7c6af7,#5e9bff);color:#fff;text-decoration:none;border:none;cursor:pointer;white-space:nowrap;}
+
+    /* Page */
+    .page{position:relative;z-index:1;padding:100px 24px 80px;max-width:1060px;margin:0 auto;}
+
+    /* Hero */
+    .hero{text-align:center;margin-bottom:52px;}
+    .eyebrow{font-family:'JetBrains Mono',monospace;font-size:.75rem;letter-spacing:.12em;text-transform:uppercase;color:#7c6af7;margin-bottom:14px;}
+    .hero h1{font-family:'Sora',sans-serif;font-weight:800;font-size:clamp(1.9rem,5vw,3.2rem);color:#e3e1ed;margin-bottom:14px;line-height:1.12;}
+    .hero p{color:rgba(255,255,255,.5);font-size:1.05rem;line-height:1.6;}
+
+    /* Billing toggle */
+    .billing-toggle{display:flex;align-items:center;justify-content:center;gap:14px;margin-bottom:48px;flex-wrap:wrap;}
+    .toggle-label{font-size:.88rem;color:rgba(255,255,255,.45);font-family:'JetBrains Mono',monospace;transition:color .2s;}
+    .toggle-label.active{color:#e3e1ed;}
+    .toggle-sw{position:relative;width:50px;height:26px;background:rgba(124,106,247,.25);border-radius:999px;border:1px solid rgba(124,106,247,.4);cursor:pointer;transition:background .3s;}
+    .toggle-sw.on{background:rgba(124,106,247,.6);}
+    .toggle-dot{position:absolute;top:3px;left:3px;width:18px;height:18px;border-radius:50%;background:#b8a9ff;transition:transform .3s;box-shadow:0 0 8px rgba(124,106,247,.7);}
+    .toggle-sw.on .toggle-dot{transform:translateX(24px);}
+    .save-badge{padding:3px 10px;border-radius:999px;background:rgba(0,212,200,.12);color:#00d4c8;font-family:'JetBrains Mono',monospace;font-size:.7rem;border:1px solid rgba(0,212,200,.3);}
+
+    /* Plans grid */
+    .plans{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;align-items:start;}
+
+    .plan{position:relative;border-radius:20px;padding:36px 30px;background:rgba(255,255,255,.03);backdrop-filter:blur(14px);border:1px solid rgba(255,255,255,.08);transition:transform .3s,box-shadow .3s;}
+    .plan:hover{transform:translateY(-6px);box-shadow:0 28px 70px rgba(0,0,0,.28);}
+
+    /* Popular glow border */
+    .plan.popular{border-color:rgba(124,106,247,.4);box-shadow:0 0 0 1px rgba(124,106,247,.25),0 20px 60px rgba(124,106,247,.08);}
+    .plan.popular:hover{box-shadow:0 0 0 1px rgba(124,106,247,.5),0 32px 80px rgba(124,106,247,.18);}
+    .popular-badge{position:absolute;top:-13px;left:50%;transform:translateX(-50%);padding:4px 16px;border-radius:999px;background:linear-gradient(135deg,#7c6af7,#00d4c8);color:#fff;font-family:'Sora',sans-serif;font-weight:700;font-size:.75rem;white-space:nowrap;}
+
+    .plan-icon{font-size:2.2rem;margin-bottom:16px;display:block;}
+    .plan-name{font-family:'Sora',sans-serif;font-weight:800;font-size:1.3rem;color:#e3e1ed;margin-bottom:6px;}
+    .plan-desc{font-size:.87rem;color:rgba(255,255,255,.42);line-height:1.55;margin-bottom:24px;}
+
+    .price-row{margin-bottom:28px;}
+    .price-amount{font-family:'Sora',sans-serif;font-weight:800;font-size:2.6rem;color:#e3e1ed;line-height:1;}
+    .price-cur{font-size:1.4rem;vertical-align:super;}
+    .price-per{font-size:.82rem;color:rgba(255,255,255,.38);font-family:'JetBrains Mono',monospace;margin-left:4px;}
+    .price-annual{font-size:.78rem;color:#00d4c8;margin-top:6px;font-family:'JetBrains Mono',monospace;display:none;}
+    .price-annual.show{display:block;}
+
+    .features{list-style:none;margin-bottom:32px;}
+    .features li{display:flex;align-items:flex-start;gap:10px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.05);font-size:.88rem;color:rgba(255,255,255,.7);}
+    .features li:last-child{border-bottom:none;}
+    .f-yes{color:#00d4c8;flex-shrink:0;}
+    .f-no{color:rgba(255,255,255,.2);flex-shrink:0;}
+    .f-dim{opacity:.35;}
+
+    /* Buttons */
+    .btn-plan{width:100%;height:50px;border:none;border-radius:12px;font-family:'Sora',sans-serif;font-weight:700;font-size:.95rem;cursor:pointer;transition:transform .2s,box-shadow .2s,opacity .2s;position:relative;}
+    .btn-plan:disabled{opacity:.5;cursor:not-allowed;transform:none!important;}
+    .btn-free{background:rgba(255,255,255,.07);color:#e3e1ed;border:1px solid rgba(255,255,255,.14);}
+    .btn-free:hover:not(:disabled){background:rgba(255,255,255,.12);}
+    .btn-pro{background:linear-gradient(135deg,#7c6af7,#5e9bff);color:#fff;box-shadow:0 0 28px rgba(124,106,247,.4);}
+    .btn-pro:hover:not(:disabled){transform:translateY(-2px);box-shadow:0 0 48px rgba(124,106,247,.6);}
+    .btn-max{background:linear-gradient(135deg,#ff6f91,#ffb86d);color:#fff;box-shadow:0 0 28px rgba(255,111,145,.3);}
+    .btn-max:hover:not(:disabled){transform:translateY(-2px);box-shadow:0 0 44px rgba(255,111,145,.5);}
+
+    /* Spinner */
+    .spin{display:inline-block;width:15px;height:15px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;vertical-align:middle;margin-right:6px;}
+    @keyframes spin{to{transform:rotate(360deg)}}
+
+    /* Status */
+    .status{margin-top:36px;padding:18px 22px;border-radius:14px;text-align:center;display:none;font-size:.9rem;line-height:1.8;}
+    .status.ok{display:block;background:rgba(0,212,200,.1);border:1px solid rgba(0,212,200,.3);color:#24ddd1;}
+    .status.err{display:block;background:rgba(255,111,145,.1);border:1px solid rgba(255,111,145,.3);color:#ffd7df;}
+    .status.warn{display:block;background:rgba(255,184,109,.08);border:1px solid rgba(255,184,109,.35);color:#ffd9a0;text-align:left;}
+    .status.warn code{background:rgba(0,0,0,.3);padding:1px 6px;border-radius:4px;font-family:'JetBrains Mono',monospace;font-size:.82rem;}
+
+    /* FAQ */
+    .faq{margin-top:72px;}
+    .faq h2{font-family:'Sora',sans-serif;font-weight:800;font-size:1.8rem;color:#e3e1ed;text-align:center;margin-bottom:36px;}
+    .faq-item{border-bottom:1px solid rgba(255,255,255,.07);padding:18px 0;}
+    .faq-q{font-family:'Sora',sans-serif;font-weight:600;font-size:.95rem;color:#e3e1ed;cursor:pointer;display:flex;justify-content:space-between;align-items:center;gap:12px;user-select:none;}
+    .faq-arrow{transition:transform .3s;flex-shrink:0;}
+    .faq-item.open .faq-arrow{transform:rotate(180deg);}
+    .faq-a{display:none;color:rgba(255,255,255,.5);font-size:.88rem;line-height:1.7;margin-top:12px;padding-right:24px;}
+    .faq-item.open .faq-a{display:block;}
+
+    /* Footer */
+    footer{position:relative;z-index:1;border-top:1px solid rgba(255,255,255,.07);padding:36px 32px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px;}
+    .footer-brand{display:flex;align-items:center;gap:10px;}
+    .footer-brand img{width:28px;border-radius:6px;}
+    .footer-brand span{font-family:'Sora',sans-serif;font-weight:700;color:#e3e1ed;font-size:.95rem;}
+    .footer-copy{font-size:.8rem;color:rgba(255,255,255,.25);font-family:'JetBrains Mono',monospace;}
+
+    /* ── RESPONSIVE ─────────────────────────────────────── */
+    @media(max-width:900px){
+      .plans{grid-template-columns:1fr 1fr;}
+      .plan.popular{grid-column:span 2;}
+    }
+    @media(max-width:640px){
+      .navbar{padding:0 16px;}
+      .nav-links{display:none;}
+      .page{padding:86px 16px 60px;}
+      .plans{grid-template-columns:1fr;}
+      .plan.popular{grid-column:span 1;}
+      .plan{padding:28px 22px;}
+      .billing-toggle{gap:10px;}
+      footer{padding:28px 20px;flex-direction:column;text-align:center;}
+    }
+    @media(max-width:380px){
+      .hero h1{font-size:1.6rem;}
+      .price-amount{font-size:2.1rem;}
+    }
+  </style>
+</head>
+<body>
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+
+  <nav class="navbar">
+    <a href="home.html" class="nav-brand"><img src="logo.png" alt=""/> AIPlayground</a>
+    <div class="nav-links">
+      <a href="home.html">Home</a>
+      <a href="index.html">Playground</a>
+    </div>
+    <a href="login.html" class="nav-btn">Sign In</a>
+  </nav>
+
+  <div class="page">
+    <div class="hero">
+      <div class="eyebrow">Pricing</div>
+      <h1>Simple, Transparent Pricing</h1>
+      <p>Start free. Upgrade when you need more power.</p>
+    </div>
+
+    <!-- Billing Toggle -->
+    <div class="billing-toggle">
+      <span class="toggle-label active" id="lblM">Monthly</span>
+      <div class="toggle-sw" id="toggleSw" onclick="toggleBilling()">
+        <div class="toggle-dot"></div>
+      </div>
+      <span class="toggle-label" id="lblA">Annual</span>
+      <span class="save-badge">Save 20%</span>
+    </div>
+
+    <!-- Plans -->
+    <div class="plans">
+
+      <!-- FREE -->
+      <div class="plan">
+        <span class="plan-icon">🆓</span>
+        <div class="plan-name">Free</div>
+        <div class="plan-desc">Perfect for exploring. No credit card needed.</div>
+        <div class="price-row">
+          <span class="price-amount"><span class="price-cur">₹</span>0</span>
+          <span class="price-per">/ forever</span>
+        </div>
+        <ul class="features">
+          <li><span class="f-yes">✓</span> 5 providers access</li>
+          <li><span class="f-yes">✓</span> 50 messages / day</li>
+          <li><span class="f-yes">✓</span> Basic model list</li>
+          <li><span class="f-yes">✓</span> Basic parameters</li>
+          <li><span class="f-no">✗</span> <span class="f-dim">Live 200+ models</span></li>
+          <li><span class="f-no">✗</span> <span class="f-dim">Priority support</span></li>
+        </ul>
+        <button class="btn-plan btn-free" onclick="selectPlan('free')">Get Started Free</button>
+      </div>
+
+      <!-- PRO (popular) -->
+      <div class="plan popular">
+        <div class="popular-badge">⚡ Most Popular</div>
+        <span class="plan-icon">🚀</span>
+        <div class="plan-name">Pro</div>
+        <div class="plan-desc">For serious developers and AI enthusiasts.</div>
+        <div class="price-row">
+          <span class="price-amount" id="proAmt"><span class="price-cur">₹</span>499</span>
+          <span class="price-per">/ month</span>
+          <div class="price-annual" id="proSave">₹4,790 billed annually (₹399/mo)</div>
+        </div>
+        <ul class="features">
+          <li><span class="f-yes">✓</span> All 7+ providers</li>
+          <li><span class="f-yes">✓</span> Unlimited messages</li>
+          <li><span class="f-yes">✓</span> Live 200+ model list</li>
+          <li><span class="f-yes">✓</span> Advanced parameters</li>
+          <li><span class="f-yes">✓</span> Token analytics</li>
+          <li><span class="f-yes">✓</span> Email support</li>
+        </ul>
+        <button class="btn-plan btn-pro" id="btnPro" onclick="selectPlan('pro')">Upgrade to Pro →</button>
+      </div>
+
+      <!-- MAX -->
+      <div class="plan">
+        <span class="plan-icon">👑</span>
+        <div class="plan-name">Max</div>
+        <div class="plan-desc">For teams and power users who need everything.</div>
+        <div class="price-row">
+          <span class="price-amount" id="maxAmt"><span class="price-cur">₹</span>999</span>
+          <span class="price-per">/ month</span>
+          <div class="price-annual" id="maxSave">₹9,590 billed annually (₹799/mo)</div>
+        </div>
+        <ul class="features">
+          <li><span class="f-yes">✓</span> Everything in Pro</li>
+          <li><span class="f-yes">✓</span> Team workspace (5 seats)</li>
+          <li><span class="f-yes">✓</span> API access & webhooks</li>
+          <li><span class="f-yes">✓</span> Custom system prompts</li>
+          <li><span class="f-yes">✓</span> Usage dashboard</li>
+          <li><span class="f-yes">✓</span> Priority 24/7 support</li>
+        </ul>
+        <button class="btn-plan btn-max" id="btnMax" onclick="selectPlan('max')">Go Max →</button>
+      </div>
+    </div>
+
+    <div id="payStatus" class="status"></div>
+
+    <!-- FAQ -->
+    <div class="faq">
+      <h2>Frequently Asked Questions</h2>
+      <div class="faq-item">
+        <div class="faq-q" onclick="this.closest('.faq-item').classList.toggle('open')">
+          Can I cancel anytime? <span class="faq-arrow">▾</span>
+        </div>
+        <div class="faq-a">Yes. Cancel any time — no penalties. Your plan stays active until the billing period ends.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q" onclick="this.closest('.faq-item').classList.toggle('open')">
+          Is my API key stored? <span class="faq-arrow">▾</span>
+        </div>
+        <div class="faq-a">Never. Keys live only in your browser session and are cleared when you close the tab.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q" onclick="this.closest('.faq-item').classList.toggle('open')">
+          What payment methods are accepted? <span class="faq-arrow">▾</span>
+        </div>
+        <div class="faq-a">UPI, debit/credit cards, net banking, and wallets — all via Razorpay, India's most trusted gateway.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q" onclick="this.closest('.faq-item').classList.toggle('open')">
+          Is there a free trial for Pro/Max? <span class="faq-arrow">▾</span>
+        </div>
+        <div class="faq-a">The Free plan gives a generous taste of AIPlayground. Pro and Max are paid from day one, but you can downgrade anytime.</div>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    <div class="footer-brand"><img src="logo.png" alt=""/><span>AIPlayground</span></div>
+    <div class="footer-copy">© 2025 AIPlayground · Payments secured by Razorpay</div>
+  </footer>
+
+  <script>
+    let isAnnual = false;
+    let rzpKeyId = 'rzp_test_SqSrZfmHttG3Yf'; // will be overridden by server config
+
+    // Load config from server
+    (async () => {
+      try {
+        const cfg = await fetch('/api/config').then(r => r.json());
+        if (cfg.razorpayKeyId) rzpKeyId = cfg.razorpayKeyId;
+      } catch (e) { /* use hardcoded fallback */ }
+    })();
+
+    // Billing toggle
+    function toggleBilling() {
+      isAnnual = !isAnnual;
+      document.getElementById('toggleSw').classList.toggle('on', isAnnual);
+      document.getElementById('lblM').classList.toggle('active', !isAnnual);
+      document.getElementById('lblA').classList.toggle('active', isAnnual);
+      document.getElementById('proSave').classList.toggle('show', isAnnual);
+      document.getElementById('maxSave').classList.toggle('show', isAnnual);
+      document.getElementById('proAmt').innerHTML = isAnnual
+        ? '<span class="price-cur">₹</span>399'
+        : '<span class="price-cur">₹</span>499';
+      document.getElementById('maxAmt').innerHTML = isAnnual
+        ? '<span class="price-cur">₹</span>799'
+        : '<span class="price-cur">₹</span>999';
+    }
+
+    function setStatus(type, msg) {
+      const el = document.getElementById('payStatus');
+      el.className = 'status' + (type ? ' ' + type : '');
+      el.innerHTML = msg;
+      if (msg) el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+
+    function setBtnLoading(id, loading, label) {
+      const btn = document.getElementById(id);
+      if (!btn) return;
+      btn.disabled = loading;
+      btn.innerHTML = loading ? `<span class="spin"></span>${label}` : label;
+    }
+
+    async function selectPlan(plan) {
+      if (plan === 'free') { window.location.href = 'login.html'; return; }
+      setStatus('', '');
+
+      const btnId = plan === 'pro' ? 'btnPro' : 'btnMax';
+      const resetLabel = plan === 'pro' ? 'Upgrade to Pro →' : 'Go Max →';
+      setBtnLoading(btnId, true, 'Creating order…');
+
+      try {
+        const res = await fetch('/api/create-order', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ plan }),
+        });
+        const order = await res.json();
+
+        if (!res.ok) {
+          throw new Error(order.error || `Server error ${res.status}`);
+        }
+
+        // Open Razorpay modal
+        if (order.mock) {
+          // Keys invalid — show test-mode notice
+          setStatus('warn', `
+            ⚠️ <strong>Razorpay keys need to be refreshed.</strong><br/>
+            Your test keys have expired. To fix:<br/>
+            1. Log in to <a href="https://dashboard.razorpay.com" target="_blank" style="color:#7c6af7;">dashboard.razorpay.com</a><br/>
+            2. Go to <strong>Settings → API Keys → Test Mode</strong><br/>
+            3. Click <strong>Regenerate Test Key</strong> and copy the new Key ID &amp; Secret<br/>
+            4. Update <code>.env</code> → restart server<br/>
+            <br/>Order would have been: <code>${order.plan_name}</code> — ₹${(order.amount/100).toLocaleString('en-IN')}
+          `);
+          setBtnLoading(btnId, false, resetLabel);
+          return;
+        }
+
+        const options = {
+          key: rzpKeyId,
+          amount: order.amount,
+          currency: order.currency,
+          name: 'AIPlayground',
+          description: `${order.plan_name} Plan`,
+          image: window.location.origin + '/logo.png',
+          order_id: order.order_id,
+          handler: async (resp) => {
+            setBtnLoading(btnId, true, 'Verifying…');
+            try {
+              const vRes = await fetch('/api/verify-payment', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(resp),
+              });
+              const vData = await vRes.json();
+              if (vRes.ok && vData.success) {
+                setStatus('ok', `🎉 Payment verified! Welcome to ${order.plan_name}.<br/>Payment ID: <code>${vData.payment_id}</code>`);
+                const btn = document.getElementById(btnId);
+                if (btn) { btn.disabled = true; btn.innerHTML = '✓ Subscribed!'; }
+              } else {
+                setStatus('err', '⚠️ Verification failed. Please contact support with your payment ID.');
+                setBtnLoading(btnId, false, resetLabel);
+              }
+            } catch (e) {
+              setStatus('err', '❌ Verification request failed: ' + e.message);
+              setBtnLoading(btnId, false, resetLabel);
+            }
+          },
+          prefill: {},
+          theme: { color: '#7c6af7' },
+          modal: {
+            ondismiss: () => {
+              setStatus('err', '⚠️ Payment was cancelled. You can try again anytime.');
+              setBtnLoading(btnId, false, resetLabel);
+            },
+          },
+        };
+
+        const rzp = new Razorpay(options);
+        rzp.on('payment.failed', (r) => {
+          setStatus('err', '❌ Payment failed: ' + (r.error.description || r.error.reason || 'Unknown error'));
+          setBtnLoading(btnId, false, resetLabel);
+        });
+        rzp.open();
+
+      } catch (e) {
+        const isServerDown = e.message.includes('fetch') || e.message.includes('Failed to fetch');
+        setStatus('err', isServerDown
+          ? '❌ Server not reachable. Make sure <code>node server.js</code> is running.'
+          : '❌ ' + e.message);
+        setBtnLoading(btnId, false, resetLabel);
+      }
+    }
+  </script>
+</body>
+</html>
